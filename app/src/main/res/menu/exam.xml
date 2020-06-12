@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mark"
+        android:icon="@drawable/check"
+        android:orderInCategory="101"
+        android:title="Mark"
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/list"
+        android:icon="@drawable/right"
+        android:orderInCategory="102"
+        android:title="List"
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/reset"
+        android:icon="@drawable/refresh"
+        android:orderInCategory="103"
+        android:title="Reset"
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/close"
+        android:icon="@drawable/closex"
+        android:orderInCategory="104"
+        android:title="Close"
+        app:showAsAction="collapseActionView" />
+</menu>
