@@ -1,13 +1,16 @@
-package ca.algonquin.kw2446.vocabook;
+package ca.algonquin.kw2446.vocabook.util;
 
 import android.app.Application;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import ca.algonquin.kw2446.vocabook.model.Voca;
+import ca.algonquin.kw2446.vocabook.model.WordSet;
 
 public class ApplicationClass extends Application {
 
     public static ArrayList<WordSet> list;
+    public static ArrayList<Voca> vocas;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,8 +30,8 @@ public class ApplicationClass extends Application {
 
 
 
-        list.add(new WordSet("sample1","EN","", sample));
-
+        list.add(new WordSet("sample","english","", sample));
+        vocas=sample;
 //        HashMap<String, String > sample=new HashMap<>();
 //        sample.put("student","학생");
 //        sample.put("school","학교");

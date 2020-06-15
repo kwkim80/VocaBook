@@ -1,34 +1,38 @@
 package ca.algonquin.kw2446.vocabook;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.sql.SQLException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+
+import ca.algonquin.kw2446.vocabook.db.VocaDB;
+import ca.algonquin.kw2446.vocabook.fragment.Input_List_Fragment;
+import ca.algonquin.kw2446.vocabook.fragment.Input_Text_Fragment;
+import ca.algonquin.kw2446.vocabook.model.Voca;
+import ca.algonquin.kw2446.vocabook.model.WordSet;
+import ca.algonquin.kw2446.vocabook.util.Utility;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -156,14 +160,15 @@ public class AddActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.save:
                 //Toast.makeText(AddActivity.this,String.valueOf(spLang.getSelectedItem()), Toast.LENGTH_SHORT).show();
-                boolean result= vocalist_save();
-                Toast.makeText(AddActivity.this,result?"Successed Save!":"Failed Save!", Toast.LENGTH_SHORT).show();
-                if(result){
+                long result= vocalist_save();
+                Toast.makeText(AddActivity.this,result>0?"Successed Save!":"Failed Save!", Toast.LENGTH_SHORT).show();
+                if(result>0){
                     Intent intent=new Intent();
                     setResult(RESULT_OK,intent);
                     AddActivity.this.finish();
@@ -177,10 +182,11 @@ public class AddActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean vocalist_save(){
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private long vocalist_save(){
         String title=etTitle.getText().toString().trim();
         String category=String.valueOf(spLang.getSelectedItem());
-        boolean result=false;
+        int result=0;
 
         if(title.isEmpty() || category.isEmpty()){
             Toast.makeText(AddActivity.this,"Please fill all fields", Toast.LENGTH_SHORT).show();
@@ -201,8 +207,9 @@ public class AddActivity extends AppCompatActivity {
             VocaDB db=new VocaDB(getApplicationContext());
             db.open();
 
-            long idx=db.createWordSetEntry(title,category);
-            result=db.createVocaListEntry(idx,newList);
+            long idx=db.insert_Item(new WordSet(title,category,Utility.getDateTime()));
+            newList.forEach(e->e.setWordSetId((int)idx));
+            result=db.insert_ItemList(newList);
             db.close();
         }
 

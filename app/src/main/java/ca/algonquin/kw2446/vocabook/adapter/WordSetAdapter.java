@@ -1,4 +1,4 @@
-package ca.algonquin.kw2446.vocabook;
+package ca.algonquin.kw2446.vocabook.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,18 +8,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.MenuView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+
+import ca.algonquin.kw2446.vocabook.R;
+import ca.algonquin.kw2446.vocabook.model.WordSet;
 
 public class WordSetAdapter extends RecyclerView.Adapter<WordSetAdapter.ViewHolder> {
     ArrayList<WordSet> list;
 
     WordSetItemClicked mainAct;
 
-    interface WordSetItemClicked{
+    public interface WordSetItemClicked{
         void onWordSetItemClicked(int i);
+        void onWordSetItemLongClicked(int i);
     }
     public WordSetAdapter(Context context, ArrayList<WordSet> list) {
         this.list = list;
@@ -41,6 +44,14 @@ public class WordSetAdapter extends RecyclerView.Adapter<WordSetAdapter.ViewHold
                 @Override
                 public void onClick(View v) {
                     mainAct.onWordSetItemClicked((int)v.getTag());
+                }
+            });
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    mainAct.onWordSetItemLongClicked((int)v.getTag());
+                    return false;
                 }
             });
         }

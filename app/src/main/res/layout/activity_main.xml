@@ -9,7 +9,7 @@
 
     <fragment
         android:id="@+id/listFrag"
-        android:name="ca.algonquin.kw2446.vocabook.ListFrag"
+        android:name="ca.algonquin.kw2446.vocabook.fragment.ListFrag"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"

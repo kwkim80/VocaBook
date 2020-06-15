@@ -1,4 +1,4 @@
-package ca.algonquin.kw2446.vocabook;
+package ca.algonquin.kw2446.vocabook.fragment;
 
 
 import android.os.Bundle;
@@ -9,14 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import ca.algonquin.kw2446.vocabook.R;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Input_Text_Fragment extends Fragment {
+public class Input_List_Fragment extends Fragment {
 
 
-    public Input_Text_Fragment() {
+    public Input_List_Fragment() {
         // Required empty public constructor
     }
 
@@ -25,7 +27,7 @@ public class Input_Text_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_input__text, container, false);
+        return inflater.inflate(R.layout.fragment_input__list, container, false);
     }
 
 }

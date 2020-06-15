@@ -80,14 +80,14 @@
 
     <fragment
         android:id="@+id/input_List_Frag"
-        android:name="ca.algonquin.kw2446.vocabook.Input_List_Fragment"
+        android:name="ca.algonquin.kw2446.vocabook.fragment.Input_List_Fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:layout="@layout/fragment_input__list" />
 
     <fragment
         android:id="@+id/input_Text_Frag"
-        android:name="ca.algonquin.kw2446.vocabook.Input_Text_Fragment"
+        android:name="ca.algonquin.kw2446.vocabook.fragment.Input_Text_Fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:layout="@layout/fragment_input__text" />

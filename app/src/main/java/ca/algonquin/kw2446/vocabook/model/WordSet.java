@@ -1,7 +1,8 @@
-package ca.algonquin.kw2446.vocabook;
+package ca.algonquin.kw2446.vocabook.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import ca.algonquin.kw2446.vocabook.model.Voca;
 
 public class WordSet {
     private int id;
@@ -9,7 +10,7 @@ public class WordSet {
     private String category;
     private String regDate;
 
-    private ArrayList<Voca> vocaList;
+   // private ArrayList<Voca> vocaList;
 
     public WordSet() { this(0,"","","",null); }
 
@@ -22,7 +23,7 @@ public class WordSet {
     }
 
     public WordSet(int id, String title, String category, String regDate, ArrayList<Voca> vocaList) {
-        setTitle(title);setCategory(category);setRegDate(regDate);setVocaList(vocaList);
+        setTitle(title);setCategory(category);setRegDate(regDate);
     }
 
     public int getId() {return id;}
@@ -49,6 +50,6 @@ public class WordSet {
         this.category = category;
     }
 
-    public ArrayList<Voca> getVocaList() { return vocaList; }
-    public void setVocaList(ArrayList<Voca> vocaList) { this.vocaList = vocaList; }
+//    public ArrayList<Voca> getVocaList() { return vocaList; }
+//    public void setVocaList(ArrayList<Voca> vocaList) { this.vocaList = vocaList; }
 }

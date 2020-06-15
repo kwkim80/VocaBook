@@ -2,8 +2,11 @@ package ca.algonquin.kw2446.vocabook;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,19 +18,27 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Random;
+
+import ca.algonquin.kw2446.vocabook.db.VocaDB;
+import ca.algonquin.kw2446.vocabook.model.Voca;
 
 public class EditActivity extends AppCompatActivity {
 
-    ImageView ivAdd;
+    ImageView ivAdd, ivEdit, ivRemove;
     LinearLayout edit_container;
     ArrayList<Voca> list;
+
     EditText etTitle;
     Spinner spLang;
+    int changedItem_cnt=0;
+    int setId;
+    private final int EDIT_ACTION=1;
+    private final int DEL_ACTION=2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +58,7 @@ public class EditActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         list= (ArrayList<Voca>) intent.getSerializableExtra("list");
-//        setId=getIntent().getIntExtra("setId",1);
+        setId=getIntent().getIntExtra("setId",1);
 
         makeEditList();
 
@@ -69,26 +80,38 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private View makeNewVocaBox(Voca v){
-        final View addView = LayoutInflater.from(EditActivity.this.getApplicationContext()).inflate(R.layout.voca_new_item, null);
+        final View addView = LayoutInflater.from(EditActivity.this.getApplicationContext()).inflate(R.layout.voca_edit_items, null);
 
         EditText etWord=addView.findViewById(R.id.etWord);
         EditText etMean=addView.findViewById(R.id.etMean);
-        Button ibRemove=addView.findViewById(R.id.ibRemove);
+        ImageView ivRemove=addView.findViewById(R.id.ivRemove);
+        ImageView ivEdit=addView.findViewById(R.id.ivEdit);
 
+        ivRemove.setImageResource(R.drawable.closex);
+        ivEdit.setImageResource(R.drawable.edit);
         etWord.setText(v.getWord());
         etMean.setText(v.getMean());
         addView.setTag(v);
        // ibRemove.setImageResource(R.drawable.closex);
 
-        final View.OnClickListener thisListener = new View.OnClickListener(){
+        final View.OnClickListener removeListener = new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                // ((LinearLayout)addView.getParent()).removeView(addView);
-                edit_container.removeView(addView);
+                //edit_container.removeView(addView);
+                 ShowAlertDialog(DEL_ACTION,addView);
             }
         };
 
-        ibRemove.setOnClickListener(thisListener);
+        final View.OnClickListener editListener=new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                ShowAlertDialog(EDIT_ACTION, addView);
+            }
+        };
+
+        ivRemove.setOnClickListener(removeListener);
+        ivEdit.setOnClickListener(editListener);
 
         return addView;
     }
@@ -103,22 +126,22 @@ public class EditActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.save:
-                //Toast.makeText(AddActivity.this,String.valueOf(spLang.getSelectedItem()), Toast.LENGTH_SHORT).show();
-
-                Intent intent=new Intent();
-                setResult(RESULT_OK,intent);
-                EditActivity.this.finish();
                 break;
             case R.id.cancel:
-                setResult(RESULT_CANCELED);
-                EditActivity.this.finish();
                 break;
         }
+        boolean result=changedItem_cnt>0;//update_WordSet();   ///vocalist_edit();
+        Toast.makeText(EditActivity.this,result?"Successed Save!":"Failed Save!", Toast.LENGTH_SHORT).show();
+        Intent intent=new Intent();
+        //intent.putExtra("list",(Serializable) list);
+        intent.putExtra("setId",setId);
+        setResult(RESULT_OK, intent);
+        EditActivity.this.finish();
         return super.onOptionsItemSelected(item);
     }
 
 
-    private boolean vocalist_edit(){
+    private boolean vocalist_edit(int i){
         String title=etTitle.getText().toString().trim();
         String category=String.valueOf(spLang.getSelectedItem());
         boolean result=false;
@@ -133,8 +156,8 @@ public class EditActivity extends AppCompatActivity {
             VocaDB db=new VocaDB(getApplicationContext());
             db.open();
 
-            long idx=db.createWordSetEntry(title,category);
-            result=db.createVocaListEntry(idx,list);
+
+            //result=db.update_Item()  //db.update_Voca(list.get(i));
             db.close();
         }
         return result;
@@ -154,5 +177,58 @@ public class EditActivity extends AppCompatActivity {
         }
 
     }
+
+    public  void ShowAlertDialog(final int actionType, View v){
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EditActivity.this);
+        // set title
+        alertDialogBuilder.setTitle("Edit your word");
+        alertDialogBuilder.setIcon(R.drawable.closex);
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("Do you want to "+(actionType==1?"edit?":"delete?"))
+                .setCancelable(false)
+                .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        boolean result;
+                        Voca voca=(Voca) v.getTag();
+                        VocaDB db=new VocaDB(getApplicationContext());
+                        db.open();
+                        switch (actionType){
+                            case EDIT_ACTION:
+                                voca.setWord(((EditText)v.findViewById(R.id.etWord)).getText().toString().trim());
+                                voca.setMean(((EditText)v.findViewById(R.id.etMean)).getText().toString().trim());
+                                result=db.update_Item(voca);
+                                Toast.makeText(EditActivity.this,String.format("%s to update the item!", result?"Succeed":"Failed"), Toast.LENGTH_SHORT).show();
+                                break;
+                            case DEL_ACTION:
+
+                                result=db.delete_Item(voca);
+                                list.remove(voca);
+                                edit_container.removeView(v);
+                                Toast.makeText(EditActivity.this,String.format("%s to delete the item!", result?"Succeed":"Failed"), Toast.LENGTH_SHORT).show();
+                                break;
+
+                        }
+                        db.close();
+                        changedItem_cnt++;
+                    }
+                })
+                .setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        dialog.cancel();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+    }
+
 
 }

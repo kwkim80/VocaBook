@@ -9,6 +9,12 @@
         android:title="Edit"
         app:showAsAction="collapseActionView" />
     <item
+        android:id="@+id/export"
+        android:icon="@drawable/right"
+        android:orderInCategory="111"
+        android:title="Export"
+        app:showAsAction="collapseActionView" />
+    <item
         android:id="@+id/close"
         android:icon="@drawable/cancel"
         android:orderInCategory="102"

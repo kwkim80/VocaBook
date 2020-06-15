@@ -1,16 +1,14 @@
 package ca.algonquin.kw2446.vocabook;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,12 +19,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+
+import ca.algonquin.kw2446.vocabook.db.VocaDB;
+import ca.algonquin.kw2446.vocabook.db.VocaRepository;
+import ca.algonquin.kw2446.vocabook.model.Voca;
 
 public class ExamActivity extends AppCompatActivity {
 
@@ -40,6 +40,8 @@ public class ExamActivity extends AppCompatActivity {
     private final int LIST_ACTION=2;
     private final int RESET_ACTION=3;
     private final int CLOSE_ACTION=4;
+
+    private final int WORDLIST_ACTIVITY=3;
 
     private String m_Text = "";
     int setId;
@@ -55,8 +57,7 @@ public class ExamActivity extends AppCompatActivity {
         actionBar.setDisplayUseLogoEnabled(true);
 
         setId=getIntent().getIntExtra("setId",1);
-        loadWordList(setId);
-
+        list= VocaRepository.loadWordList(getApplication(),setId);
         quizlist=(ArrayList<Voca>) list.clone();
        Collections.shuffle(quizlist);
         //Log.d("quizlist_check",String.valueOf(quizlist.size()));
@@ -75,6 +76,7 @@ public class ExamActivity extends AppCompatActivity {
     }
 
     private void makeQuiz(){
+
         for (Voca v: quizlist){
             View question=makeNewVocaBox(v);
             quiz_container.addView(question);
@@ -116,22 +118,25 @@ public class ExamActivity extends AppCompatActivity {
                 break;
             case R.id.reset:
                 //Toast.makeText(AddActivity.this,String.valueOf(spLang.getSelectedItem()), Toast.LENGTH_SHORT).show();
-                checkPwd(RESET_ACTION);
+               // checkPwd(RESET_ACTION);
+                tvSTime.setText(String.format("Quize unique_id: %d",new Random().nextInt(10000)));
+                for (Voca voca:quizlist){
+                    View qbox=quiz_container.findViewWithTag(voca);
+                    EditText etWord=qbox.findViewById(R.id.etWord);
+                    ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
+                    etWord.setText("");
+                    ivCheck.setImageResource(R.drawable.checkbox);
+                }
                 break;
             case R.id.close:
-                checkPwd(CLOSE_ACTION);
+               // checkPwd(CLOSE_ACTION);
+                ExamActivity.this.finish();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadWordList(int i){
 
-        VocaDB db=new VocaDB(getApplicationContext());
-        db.open();
-        list=db.getAll_VocaList(i);
-        db.close();
-    }
 
 
     public void checkPwd(final int actionType){
@@ -140,13 +145,11 @@ public class ExamActivity extends AppCompatActivity {
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 ExamActivity.this);
-
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
         final EditText userInput = (EditText) promptsView
                 .findViewById(R.id.editTextDialogUserInput);
-
         // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
@@ -167,15 +170,14 @@ public class ExamActivity extends AppCompatActivity {
                                                 if(voca.getWord().trim().equalsIgnoreCase(answer)){
                                                     ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
                                                     ivCheck.setImageResource(R.drawable.check);
-                                                }else{
-                                                    etWord.setText(String.format("%s->[%s]",answer,voca.getWord().trim()));
-                                                }
+                                                }else etWord.setText(String.format("%s->[%s]",answer,voca.getWord().trim()));
                                             }
                                             break;
                                         case LIST_ACTION:
                                             Intent intent=new Intent(ExamActivity.this, WordListActivity.class);
                                             intent.putExtra("list", (Serializable)list);
-                                            startActivity(intent);
+                                            intent.putExtra("setId",setId);
+                                            startActivityForResult(intent, WORDLIST_ACTIVITY);
                                             break;
                                         case RESET_ACTION:
                                             tvSTime.setText(String.format("Quize unique_id: %d",new Random().nextInt(10000)));
@@ -203,47 +205,18 @@ public class ExamActivity extends AppCompatActivity {
                                 dialog.cancel();
                             }
                         });
-
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
-
         // show it
         alertDialog.show();
-
     }
 
-
-//    public String chkPwd() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setTitle("Title");
-//
-//// Set up the input
-//        final EditText input = new EditText(this);
-//// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-//        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-//        builder.setView(input);
-//
-//// Set up the buttons
-//        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//              if(input.getText().toString().equalsIgnoreCase("q1w2e3r4")){
-//                  Intent intent=new Intent(ExamActivity.this, WordListActivity.class);
-//                    intent.putExtra("list", (Serializable)list);
-//                    startActivity(intent);
-//              }
-//            }
-//        });
-//        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                dialog.cancel();
-//            }
-//        });
-//
-//        builder.show();
-//
-//        return  m_Text;
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==WORDLIST_ACTIVITY){
+                ExamActivity.this.finish();
+        }
+    }
 
 }

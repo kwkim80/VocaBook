@@ -1,22 +1,29 @@
-package ca.algonquin.kw2446.vocabook;
+package ca.algonquin.kw2446.vocabook.fragment;
 
 
 import android.database.SQLException;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import ca.algonquin.kw2446.vocabook.R;
+import ca.algonquin.kw2446.vocabook.db.VocaDB;
+import ca.algonquin.kw2446.vocabook.db.VocaRepository;
+import ca.algonquin.kw2446.vocabook.model.WordSet;
+import ca.algonquin.kw2446.vocabook.adapter.WordSetAdapter;
+import ca.algonquin.kw2446.vocabook.util.Utility;
 
 
 /**
@@ -24,7 +31,7 @@ import java.util.List;
  */
 public class ListFrag extends Fragment {
 
-
+    ArrayList<WordSet> list;
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     RecyclerView.Adapter adapter;
@@ -46,51 +53,39 @@ public class ListFrag extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        list=new ArrayList<>();
+        loadWordSets();
         recyclerView=v.findViewById(R.id.rvList);
         recyclerView.setHasFixedSize(true);
         layoutManager=new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        adapter=new WordSetAdapter(this.getContext(), loadWordSets());
+        adapter=new WordSetAdapter(this.getContext(), list);
         recyclerView.setAdapter(adapter);
 
     }
 
     public void notifyChanged(){
-        adapter.notifyDataSetChanged();
+        if(adapter!=null) adapter.notifyDataSetChanged();
     }
 
-    public ArrayList<WordSet> loadWordSets(){
-        ArrayList<WordSet> list=new ArrayList<>();
+
+    public void loadWordSets(){
+        ArrayList<WordSet> data=new ArrayList<>();
         try {
-            VocaDB db=new VocaDB( this.getContext());
-            db.open();
-            list=db.getAll_WordSet();
 
-            boolean first=false;
-            if(list.size()==0){
-                WordSet wordSet=ApplicationClass.list.get(0);
-                long idx=db.createWordSetEntry(wordSet.getTitle(),wordSet.getCategory());
-                for (Voca item: wordSet.getVocaList()) {
-                    long idx2=db.createVocaEntry(idx,item.getWord(), item.getMean());
-                    Log.d("idx",String.valueOf(idx2));
-                }
-                first=true;
+            data=VocaRepository.getItemList(this.getContext(), WordSet.class );
+
+            if(data.size()==0){
+                VocaRepository.addSample_WordSet(getContext());
+                data=VocaRepository.getItemList(this.getContext(), WordSet.class );
             }
-            db.close();
-
-            if(first){
-               MainActivity main= (MainActivity)this.getActivity();
-               main.refreshPage();
-            }
-            //Toast.makeText(this.getContext(),"Successfully get Data!!", Toast.LENGTH_SHORT).show();
-
         }
         catch ( SQLException e){
             Toast.makeText(this.getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
         }
-
-        return  list;
+        list.clear();
+        list.addAll(data);
+        this.notifyChanged();
     }
 
 

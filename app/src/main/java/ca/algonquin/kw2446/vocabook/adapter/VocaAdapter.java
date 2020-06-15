@@ -1,21 +1,19 @@
-package ca.algonquin.kw2446.vocabook;
+package ca.algonquin.kw2446.vocabook.adapter;
 
 import android.content.Context;
-import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+
+import ca.algonquin.kw2446.vocabook.R;
+import ca.algonquin.kw2446.vocabook.model.Voca;
 
 public class VocaAdapter extends ArrayAdapter<Voca> {
 
@@ -87,5 +85,13 @@ public class VocaAdapter extends ArrayAdapter<Voca> {
 //        return v;
 
     }
+
+
+//    public void refreshData(ArrayList<Voca> newList)
+//    {
+//        list.clear();
+//        list.addAll(newList);
+//        notifyDataSetChanged();
+//    }
 
 }

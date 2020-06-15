@@ -27,4 +27,9 @@
         android:orderInCategory="103"
         android:title="Download"
         app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/sample"
+        android:orderInCategory="111"
+        android:title="sample Add"
+        app:showAsAction="collapseActionView" />
 </menu>

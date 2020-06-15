@@ -1,31 +1,24 @@
-package ca.algonquin.kw2446.vocabook;
+package ca.algonquin.kw2446.vocabook.fragment;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.ListFragment;
 
-import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Locale;
+
+import ca.algonquin.kw2446.vocabook.R;
+import ca.algonquin.kw2446.vocabook.model.Voca;
+import ca.algonquin.kw2446.vocabook.adapter.VocaAdapter;
 
 
 /**
@@ -88,9 +81,9 @@ public class DetailFrag extends Fragment {
 
     }
 
-
-
-
+    public void notifyChanged(){
+        vocaAdapter.notifyDataSetChanged();
+    }
 
 
 }
