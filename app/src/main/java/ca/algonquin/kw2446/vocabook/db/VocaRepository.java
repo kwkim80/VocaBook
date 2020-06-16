@@ -69,4 +69,31 @@ public class VocaRepository {
         ArrayList<T> list=getItemList(context,target);
         return Utility.convertArrayListToJson(list);
     }
+
+    public static <T> boolean update_Item(Context context, T obj){
+        boolean result;
+        VocaDB db=new VocaDB( context);
+        db.open();
+        result=db.update_Item(obj);
+        db.close();
+        return  result;
+    }
+
+    public static <T> boolean delete_Item(Context context,T obj){
+        boolean result;
+        VocaDB db=new VocaDB( context);
+        db.open();
+        result=db.delete_Item(obj);
+        db.close();
+        return  result;
+    }
+
+    public static <T> int insert_Item(Context context,T obj){
+        int result;
+        VocaDB db=new VocaDB( context);
+        db.open();
+        result=(int)db.insert_Item(obj);
+        db.close();
+        return  result;
+    }
 }

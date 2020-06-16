@@ -180,13 +180,13 @@ public class EditActivity extends AppCompatActivity {
 
     public  void ShowAlertDialog(final int actionType, View v){
 
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EditActivity.this);
         // set title
-        alertDialogBuilder.setTitle("Edit your word");
-        alertDialogBuilder.setIcon(R.drawable.closex);
 
         // set dialog message
-        alertDialogBuilder
+        alertDialogBuilder.setTitle((actionType==1?"Edit?":"Delete")+" a word")
+                .setIcon(actionType==1?R.drawable.edit:R.drawable.delete)
                 .setMessage("Do you want to "+(actionType==1?"edit?":"delete?"))
                 .setCancelable(false)
                 .setPositiveButton("OK",new DialogInterface.OnClickListener() {

@@ -159,7 +159,7 @@ public class ExamActivity extends AppCompatActivity {
                                 // get user input and set it to result
                                 // edit text
 
-                                if(userInput.getText().toString().trim().equalsIgnoreCase("q1w2e3r4")){
+                                if(userInput.getText().toString().trim().equalsIgnoreCase("0000")){
                                     switch (actionType){
                                         case MARK_ACTION:
                                             for (Voca voca:quizlist){

@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
 
     FragmentManager fragmentManager;
     ListFrag listFrag;
-//    DetailFrag detailFrag;
+
 
 
 
@@ -107,7 +107,8 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
 
     @Override
     public void onWordSetItemClicked(int i) {
-        Intent intent=new Intent(MainActivity.this, WordListActivity.class);
+//        Intent intent=new Intent(MainActivity.this, WordListActivity.class);
+        Intent intent=new Intent(MainActivity.this, DetailActivity.class);
         intent.putExtra("setId",i);
         startActivity(intent);
     }

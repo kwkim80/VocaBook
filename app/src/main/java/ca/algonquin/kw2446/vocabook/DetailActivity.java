@@ -1,46 +1,61 @@
 package ca.algonquin.kw2446.vocabook;
 
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuAdapter;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.google.gson.JsonArray;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 
+import ca.algonquin.kw2446.vocabook.adapter.VocaAdapter;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
-import ca.algonquin.kw2446.vocabook.fragment.WordListFrag;
+import ca.algonquin.kw2446.vocabook.fragment.DetailFrag;
 import ca.algonquin.kw2446.vocabook.fragment.WordListFrag;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.util.Utility;
 
-public class WordListActivity extends AppCompatActivity implements  WordListFrag.VocaItemClicked{
+public class DetailActivity extends AppCompatActivity implements DetailFrag.VocaItemClicked {
 
     ArrayList<Voca> list=new ArrayList<>();
-
-
-//    ListView lvWords;
-//    VocaAdapter vocaAdapter;
-
-    ImageView ivLeft, ivRight, ivVoice;
+    ImageView ivLeft, ivRight, ivVoice, ivAdd;
     TextView tvBig, tvExport;
     int index;
     TextToSpeech tts;
     FragmentManager fragmentManager;
-    WordListFrag wordListFrag;
+    DetailFrag detailFrag;
 
 
     private final int WORDLIST_ACTIVITY=3;
@@ -49,7 +64,7 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_word_list);
+        setContentView(R.layout.activity_detail);
         //String name=getIntent().getStringExtra("name");
 
 
@@ -58,6 +73,7 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
 
 //        setId=getIntent().getIntExtra("setId",1);
         list=VocaRepository.loadWordList(getApplicationContext(),setId);
+
         ActionBar actionBar=getSupportActionBar();
         actionBar.setIcon(R.drawable.logo);
         actionBar.setTitle("  Vocabulary");
@@ -69,10 +85,11 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
         ivRight=findViewById(R.id.ivRight);
         tvBig=findViewById(R.id.tvBigWord);
         ivVoice=findViewById(R.id.ivVoice);
+        ivAdd=findViewById(R.id.ivAdd);
         tvExport=findViewById(R.id.tvExport);
 
         fragmentManager=getSupportFragmentManager();
-        wordListFrag =(WordListFrag) fragmentManager.findFragmentById(R.id.wordListFrag);
+        detailFrag =(DetailFrag) fragmentManager.findFragmentById(R.id.detailFrag);
 
         ivLeft.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +109,7 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
             }
         });
 
-        tts=new TextToSpeech(WordListActivity.this, new TextToSpeech.OnInitListener() {
+        tts=new TextToSpeech(DetailActivity.this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if(status != TextToSpeech.ERROR) {
@@ -111,7 +128,12 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
             }
         });
 
-
+        ivAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                detailFrag.editShowDialog(-1);
+            }
+        });
 
         onVocaItemClicked(0);
 
@@ -126,11 +148,11 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.edit:
-                //Toast.makeText(AddActivity.this,String.valueOf(spLang.getSelectedItem()), Toast.LENGTH_SHORT).show();
-                Intent intent=new Intent(WordListActivity.this, EditActivity.class);
-                intent.putExtra("list", (Serializable)list);
-                intent.putExtra("setId",setId);
-                startActivityForResult(intent,EDITACTIVITY);
+                Toast.makeText(DetailActivity.this, "You can't access the menu",Toast.LENGTH_SHORT).show();
+//                Intent intent=new Intent(DetailActivity.this, EditActivity.class);
+//                intent.putExtra("list", (Serializable)list);
+//                intent.putExtra("setId",setId);
+//                startActivityForResult(intent,EDITACTIVITY);
                 break;
             case R.id.export:
                 ArrayList<Voca> list=(ArrayList<Voca>) VocaRepository.loadWordList(getApplicationContext(),setId);
@@ -140,7 +162,7 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
                 break;
             case R.id.close:
                 setResult(RESULT_CANCELED);
-                WordListActivity.this.finish();
+                DetailActivity.this.finish();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -164,21 +186,26 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==EDITACTIVITY){
-          //if(resultCode==RESULT_OK){}
+            //if(resultCode==RESULT_OK){}
             setId=data.getIntExtra("setId",setId);
 
             list.clear();
-            list.addAll(VocaRepository.loadWordList(WordListActivity.this,setId));
+            list.addAll(VocaRepository.loadWordList(DetailActivity.this,setId));
 //            list.addAll((ArrayList<Voca>) data.getSerializableExtra("list"));
 //
-            wordListFrag.notifyChanged();
+            detailFrag.notifyChanged();
 
 
         }
     }
+
+    public int getSetId(){
+     return  setId;
+    }
+
     @Override
     public ArrayList<Voca> onGetList() {
-            return list;
+        return list;
     }
 
     public void onPause(){
@@ -187,5 +214,9 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
     }
 
 
-
 }
+
+
+
+
+

@@ -6,10 +6,8 @@
     android:orientation="vertical"
     tools:context=".fragment.DetailFrag">
 
-    <com.baoyz.swipemenulistview.SwipeMenuListView
+    <ListView
+        android:id="@+id/lvWords"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/smlvWords">
-
-    </com.baoyz.swipemenulistview.SwipeMenuListView>
+        android:layout_height="match_parent" />
 </LinearLayout>

@@ -27,6 +27,26 @@ public class ApplicationClass extends Application {
         sample.add(new Voca("hospital","병원"));
         sample.add(new Voca("rainbow","무지개"));
         sample.add(new Voca("always","항상"));
+        sample.add(new Voca("student","학생"));
+        sample.add(new Voca("school","학교"));
+        sample.add(new Voca("teacher","선생님"));
+        sample.add(new Voca("doctor","의사"));
+        sample.add(new Voca("desk","책상"));
+        sample.add(new Voca("chair","의자"));
+        sample.add(new Voca("friend","친구"));
+        sample.add(new Voca("hospital","병원"));
+        sample.add(new Voca("rainbow","무지개"));
+        sample.add(new Voca("always","항상"));
+        sample.add(new Voca("student","학생"));
+        sample.add(new Voca("school","학교"));
+        sample.add(new Voca("teacher","선생님"));
+        sample.add(new Voca("doctor","의사"));
+        sample.add(new Voca("desk","책상"));
+        sample.add(new Voca("chair","의자"));
+        sample.add(new Voca("friend","친구"));
+        sample.add(new Voca("hospital","병원"));
+        sample.add(new Voca("rainbow","무지개"));
+        sample.add(new Voca("always","항상"));
 
 
 
