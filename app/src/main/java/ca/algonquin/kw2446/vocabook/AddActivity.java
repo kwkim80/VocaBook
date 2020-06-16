@@ -26,12 +26,15 @@ import android.widget.Toast;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import ca.algonquin.kw2446.vocabook.db.VocaDB;
+import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.fragment.Input_List_Fragment;
 import ca.algonquin.kw2446.vocabook.fragment.Input_Text_Fragment;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.model.WordSet;
+import ca.algonquin.kw2446.vocabook.util.JsonUtil;
 import ca.algonquin.kw2446.vocabook.util.Utility;
 
 public class AddActivity extends AppCompatActivity {
@@ -201,16 +204,16 @@ public class AddActivity extends AppCompatActivity {
                     fillVocaListByText();
                     break;
                 case JSON_INPUT:
+                    fillVocaListByJson();
                     break;
             }
 
-            VocaDB db=new VocaDB(getApplicationContext());
-            db.open();
+           //WordSet wordSet=new WordSet(title,category,Utility.getDateTime());
 
-            long idx=db.insert_Item(new WordSet(title,category,Utility.getDateTime()));
+            long idx= VocaRepository.insert_Item(getApplicationContext(),new WordSet(title,category,Utility.getDateTime()));
             newList.forEach(e->e.setWordSetId((int)idx));
-            result=db.insert_ItemList(newList);
-            db.close();
+            result=VocaRepository.insert_List(getApplicationContext(), newList);
+
         }
 
         return result;
@@ -240,6 +243,12 @@ public class AddActivity extends AppCompatActivity {
             newList.add(new Voca(item.split(":")[0].trim(),item.split(":")[1].trim()));
 
         }
+
+    }
+    private void fillVocaListByJson(){
+        String rawData=etRawData.getText().toString().trim();
+        newList.addAll(JsonUtil.convertJsonStringToArrayList(rawData,Voca.class));
+        ArrayList<Voca> aList=new ArrayList<>();
 
     }
 

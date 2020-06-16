@@ -15,17 +15,23 @@ import androidx.appcompat.app.AlertDialog;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,52 +57,12 @@ public class Utility {
         return dateFormat.format(date);
     }
 
-    public static JSONArray convertCursorToJson(Cursor cursor) {
-        JSONArray resultSet     = new JSONArray();
-
-        cursor.moveToFirst();
-        while (cursor.isAfterLast() == false) {
-
-            int totalColumn = cursor.getColumnCount();
-            JSONObject rowObject = new JSONObject();
-
-            for( int i=0 ;  i< totalColumn ; i++ )
-            {
-                if( cursor.getColumnName(i) != null )
-                {
-                    try
-                    {
-                        if( cursor.getString(i) != null )
-                        {
-                            Log.d("TAG_NAME", cursor.getString(i) );
-                            rowObject.put(cursor.getColumnName(i) ,  cursor.getString(i) );
-                        }
-                        else rowObject.put( cursor.getColumnName(i) ,  "" );
-                    }
-                    catch( Exception e )
-                    {
-                        Log.d("TAG_NAME", e.getMessage()  );
-                    }
-                }
-            }
-            resultSet.put(rowObject);
-            cursor.moveToNext();
-        }
-        cursor.close();
-        Log.d("TAG_NAME", resultSet.toString() );
-        return resultSet;
-
-    }
-
-    public static <T> JsonArray convertArrayListToJson(ArrayList<T> list){
 
 
-        JsonArray result = (JsonArray) new Gson().toJsonTree(list,
-                new TypeToken<List<T>>() {
-                }.getType());
 
-        return result;
-    }
+
+
+
 
     public static <T> HashMap<String, Object> ObjectToMap(T v){
         ObjectMapper oMapper = new ObjectMapper();
@@ -110,6 +76,7 @@ public class Utility {
     }
 
 
+
     public static <T> T setData(T obj, HashMap<String, Object> fields) {
         for (Map.Entry<String, Object> entry : fields.entrySet()) {
             Method m = null;
@@ -120,12 +87,6 @@ public class Utility {
                         m=method; break;
                     }
                 };
-
-//               List<Method> ms= Arrays.stream(obj.getClass().getMethods())
-//                        .filter(e -> e.getName().equalsIgnoreCase("set"+entry.getKey()))
-//                        .filter(e -> e.getParameterTypes().length ==  1)
-//                       // .filter(e -> e.getParameterTypes()[0].equals(entry.getValue().getClass()))
-//                        .collect(Collectors.toList());
 
 
                 if (m != null) {

@@ -1,21 +1,17 @@
 package ca.algonquin.kw2446.vocabook.db;
 
-import android.app.Application;
 import android.content.Context;
-import android.database.Cursor;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
 
 import com.google.gson.JsonArray;
 
-import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.model.WordSet;
 import ca.algonquin.kw2446.vocabook.util.ApplicationClass;
+import ca.algonquin.kw2446.vocabook.util.JsonUtil;
 import ca.algonquin.kw2446.vocabook.util.Utility;
 
 public class VocaRepository {
@@ -48,10 +44,15 @@ public class VocaRepository {
 
 
     public static <T> ArrayList<T> getItemList(Context context, Class<T> obj){
-        ArrayList<T> list;
+        ArrayList<T> list=null;
         VocaDB db=new VocaDB( context);
         db.open();
-        list=(ArrayList<T>) db.get_ItemList(obj);
+        //list=db.get_ItemListToJsonToList(obj);
+        try {
+            list= JsonUtil.convertCursorToArrayList(obj, db.get_List(obj));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         db.close();
         return  list;
     }
@@ -64,11 +65,6 @@ public class VocaRepository {
 //        db.close();
 //        return  result;
 //    }
-
-    public static <T> JsonArray getJson_ItemList(Context context, Class<T> target){
-        ArrayList<T> list=getItemList(context,target);
-        return Utility.convertArrayListToJson(list);
-    }
 
     public static <T> boolean update_Item(Context context, T obj){
         boolean result;
@@ -95,5 +91,15 @@ public class VocaRepository {
         result=(int)db.insert_Item(obj);
         db.close();
         return  result;
+    }
+
+    public static <T> int insert_List(Context context,ArrayList<T> list){
+        VocaDB db=new VocaDB(context);
+        db.open();
+
+        int result=db.insert_ItemList(list);
+        db.close();
+
+        return result;
     }
 }

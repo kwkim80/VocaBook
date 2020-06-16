@@ -13,49 +13,41 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
+
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 
-import com.baoyz.swipemenulistview.SwipeMenu;
-import com.baoyz.swipemenulistview.SwipeMenuAdapter;
-import com.baoyz.swipemenulistview.SwipeMenuCreator;
-import com.baoyz.swipemenulistview.SwipeMenuItem;
-import com.baoyz.swipemenulistview.SwipeMenuListView;
+import androidx.fragment.app.FragmentManager;
 import com.google.gson.JsonArray;
 
-import java.io.Serializable;
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Random;
 
-import ca.algonquin.kw2446.vocabook.adapter.VocaAdapter;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.fragment.DetailFrag;
-import ca.algonquin.kw2446.vocabook.fragment.WordListFrag;
 import ca.algonquin.kw2446.vocabook.model.Voca;
-import ca.algonquin.kw2446.vocabook.util.Utility;
+import ca.algonquin.kw2446.vocabook.model.WordSet;
+import ca.algonquin.kw2446.vocabook.util.JsonUtil;
+
 
 public class DetailActivity extends AppCompatActivity implements DetailFrag.VocaItemClicked {
 
     ArrayList<Voca> list=new ArrayList<>();
     ImageView ivLeft, ivRight, ivVoice, ivAdd;
-    TextView tvBig, tvExport;
+    TextView tvBig, tvExport, tvTitle;
     int index;
     TextToSpeech tts;
     FragmentManager fragmentManager;
     DetailFrag detailFrag;
+    String category;
 
 
     private final int WORDLIST_ACTIVITY=3;
@@ -67,11 +59,11 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
         setContentView(R.layout.activity_detail);
         //String name=getIntent().getStringExtra("name");
 
-
         Intent intent = getIntent();
         setId=intent.getIntExtra("setId",1);
-
+        category=intent.getStringExtra("category");
 //        setId=getIntent().getIntExtra("setId",1);
+
         list=VocaRepository.loadWordList(getApplicationContext(),setId);
 
         ActionBar actionBar=getSupportActionBar();
@@ -87,6 +79,8 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
         ivVoice=findViewById(R.id.ivVoice);
         ivAdd=findViewById(R.id.ivAdd);
         tvExport=findViewById(R.id.tvExport);
+        tvTitle=findViewById(R.id.tvTitle);
+        tvTitle.setText(String.format("Word List",category));
 
         fragmentManager=getSupportFragmentManager();
         detailFrag =(DetailFrag) fragmentManager.findFragmentById(R.id.detailFrag);
@@ -113,11 +107,17 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
             @Override
             public void onInit(int status) {
                 if(status != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.US);
+                    if(category.equalsIgnoreCase("french")){
+                        tts.setLanguage(Locale.FRANCE);
+                    }else if (category.equalsIgnoreCase("korean")){
+                        tts.setLanguage(Locale.KOREA);
+                    }else{
+                        tts.setLanguage(Locale.US);
+                    }
+
                 }
             }
         });
-
 
         ivVoice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,12 +131,11 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
         ivAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                detailFrag.editShowDialog(-1);
+                detailFrag.checkPwd(3,-1);  // EDIT_ACTION=1; DELETE_ACTION=2; ADD_ACTION=3;
             }
         });
 
         onVocaItemClicked(0);
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,7 +155,8 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
                 break;
             case R.id.export:
                 ArrayList<Voca> list=(ArrayList<Voca>) VocaRepository.loadWordList(getApplicationContext(),setId);
-                JsonArray jsonArray=Utility.convertArrayListToJson(list);
+               // JsonArray jsonArray= JsonUtil.convertArrayListToJsonArray(list);
+                JsonArray jsonArray= JsonUtil.convertArrayListToJsonArray(list);
                 tvExport.setVisibility(View.VISIBLE);
                 tvExport.setText(jsonArray.toString());
                 break;
@@ -177,10 +177,7 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
             tvBig.setText(voca.getWord());
         }
 
-
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -194,19 +191,13 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
 //            list.addAll((ArrayList<Voca>) data.getSerializableExtra("list"));
 //
             detailFrag.notifyChanged();
-
-
         }
     }
 
-    public int getSetId(){
-     return  setId;
-    }
+    public int getSetId(){ return  setId; }
 
     @Override
-    public ArrayList<Voca> onGetList() {
-        return list;
-    }
+    public ArrayList<Voca> onGetList() { return list; }
 
     public void onPause(){
         if(tts !=null){tts.stop();tts.shutdown(); }

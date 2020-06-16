@@ -3,6 +3,7 @@ package ca.algonquin.kw2446.vocabook.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,10 +28,14 @@ import com.baoyz.swipemenulistview.SwipeMenuCreator;
 import com.baoyz.swipemenulistview.SwipeMenuItem;
 import com.baoyz.swipemenulistview.SwipeMenuListView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Random;
 
 import ca.algonquin.kw2446.vocabook.DetailActivity;
+import ca.algonquin.kw2446.vocabook.ExamActivity;
 import ca.algonquin.kw2446.vocabook.R;
+import ca.algonquin.kw2446.vocabook.WordListActivity;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.adapter.VocaAdapter;
@@ -54,6 +60,9 @@ public class DetailFrag extends Fragment {
     int setId;
 
 
+    private final int EDIT_ACTION=1;
+    private final int DELETE_ACTION=2;
+    private final int ADD_ACTION=3;
 
 
 
@@ -138,19 +147,14 @@ public class DetailFrag extends Fragment {
         smlvWords.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                Voca voca=activity.onGetList().get(position);
-                boolean result;
                 switch (index) {
                     case 0:
                        // Log.d(TAG, "onMenuItemPosition: clicked position " + position);
-                         editShowDialog(position);
+                         checkPwd(EDIT_ACTION, position);
+                         //editShowDialog(position);
                         break;
                     case 1:
-
-                        result= VocaRepository.delete_Item(getContext(),voca);
-                        activity.onGetList().remove(position);
-                        notifyChanged();
-                        Toast.makeText(getContext(),String.format("%s to delete the Item",result?"Succeed":"Failed"),Toast.LENGTH_SHORT).show();
+                         checkPwd(DELETE_ACTION, position);
                         break;
                 }
                 // false : close the menu; true : not close the menu
@@ -185,7 +189,8 @@ public class DetailFrag extends Fragment {
 
 
         // set dialog message
-        alertDialogBuilder.setTitle("Edit a word")
+        alertDialogBuilder.setTitle(String.format("%s A WORD",idx!=-1?"UPDATE":"ADD"))
+                .setIcon(idx!=-1?R.drawable.edit:R.drawable.add)
                 .setCancelable(false)
                 .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
@@ -198,9 +203,69 @@ public class DetailFrag extends Fragment {
 
                                 boolean result=idx!=-1?VocaRepository.update_Item(getContext(),voca):VocaRepository.insert_Item(getContext(),voca)>0;
 
-                                Toast.makeText(getContext(),String.format("%s to update the item!",result ?"Succeed":"Failed"), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(),String.format("%s to %s the item!",result ?"Succeed":"Failed", idx!=-1?"update":"add"), Toast.LENGTH_SHORT).show();
                                 if(result && idx==-1)activity.onGetList().add(voca);
                                 notifyChanged();
+
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        // show it
+        alertDialog.show();
+    }
+
+
+    public void checkPwd(final int actionType, final int idx){
+
+        View promptsView = LayoutInflater.from(getContext()).inflate(R.layout.prompt, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                getContext());
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = (EditText) promptsView
+                .findViewById(R.id.editTextDialogUserInput);
+        // set dialog message
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // get user input and set it to result
+                                // edit text
+
+                                boolean result;
+                                if(userInput.getText().toString().trim().equalsIgnoreCase("0000")){
+                                    switch (actionType){
+                                        case EDIT_ACTION:
+                                      editShowDialog(idx);
+                                            break;
+                                        case DELETE_ACTION:
+                                            Voca voca=activity.onGetList().get(idx);
+                                            result= VocaRepository.delete_Item(getContext(),voca);
+                                            if(result){
+                                                activity.onGetList().remove(idx);
+                                                notifyChanged();
+                                            }
+                                            Toast.makeText(getContext(),String.format("%s to delete the Item",result?"Succeed":"Failed"),Toast.LENGTH_SHORT).show();
+                                            break;
+                                        case ADD_ACTION:
+                                            editShowDialog(-1);
+                                            break;
+
+                                    }
+
+
+                                }
 
                             }
                         })

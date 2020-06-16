@@ -106,10 +106,11 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
     }
 
     @Override
-    public void onWordSetItemClicked(int i) {
+    public void onWordSetItemClicked( String category, int i) {
 //        Intent intent=new Intent(MainActivity.this, WordListActivity.class);
         Intent intent=new Intent(MainActivity.this, DetailActivity.class);
         intent.putExtra("setId",i);
+        intent.putExtra("category",category );
         startActivity(intent);
     }
 
@@ -134,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
 //        ArrayList<WordSet> wordSets2=db.getAll_WordSet();
 //        Gson gson = new Gson();
 //        JsonElement json = gson.toJsonTree(wordSets2);
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         File file = new File(path, "/wordSet.json");
         Gson gson = new Gson();
@@ -162,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
 
         }
     }
+
+
 
 
 

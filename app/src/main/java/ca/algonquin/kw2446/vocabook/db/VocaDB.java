@@ -6,20 +6,22 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.model.WordSet;
+import ca.algonquin.kw2446.vocabook.util.JsonUtil;
 import ca.algonquin.kw2446.vocabook.util.Utility;
 
 public class VocaDB {
@@ -80,8 +82,8 @@ public class VocaDB {
             db.execSQL(create_WordSetTable_Sql);
             db.execSQL(create_VocaTable_Sql);
 
-            wordset_cols=get_Item_Cols(new WordSet());
-            voca_cols=get_Item_Cols(new Voca());
+            wordset_cols=get_Item_Cols(WordSet.class);
+            voca_cols=get_Item_Cols(Voca.class);
 
         }
 
@@ -130,12 +132,22 @@ public class VocaDB {
             return row;
         }
 
-        public <T> String[] get_Item_Cols(T obj){
+        public <T> String[] get_Item_ColsByHash(T obj){
            HashMap<String, Object> map = Utility.ObjectToMap(obj);
 
             String[] cols = new String[map.keySet().size()];
             return map.keySet().toArray(cols);
         }
+
+        public <T> String[] get_Item_Cols(Class<T> obj){
+            String[] cols= new String[obj.getDeclaredFields().length];
+            int i=0;
+            for (Field field:obj.getDeclaredFields()) {
+                cols[i++]=field.getName();
+            } ;
+            return  cols;
+        }
+
     }
 
     public VocaDB open() throws SQLException {
@@ -210,7 +222,31 @@ public class VocaDB {
     }
 
 
-    public <T> ArrayList<T> get_ItemList(Class<T> targetClass) {
+    public <T> Cursor get_List(Class<T> targetClass) {
+
+       // ArrayList<T> list = new ArrayList<>();
+//        Class<T> clazzOfT;
+//        Map<String, String> map = Utility.ObjectToMap(targetClass);
+        Cursor c=null;
+        try {
+            T item = targetClass.newInstance();
+            //String[] cols = dbHelper.get_Item_Cols(item); //new String[map.keySet().size()];
+            String[] cols= dbHelper.get_Item_Cols(targetClass);
+
+            //String[] cols = dbHelper.get_Item_Cols(item); //new String[map.keySet().size()];
+            String orderBy = KEY_ROWID + " desc";
+            c = ourDB.query(item.getClass().getSimpleName(), cols, null, null, null, null, orderBy, null);
+
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+
+        return c;
+    }
+
+    public <T> ArrayList<T> get_ItemListToJsonToList(Class<T> targetClass) {
 
         ArrayList<T> list = new ArrayList<>();
 //        Class<T> clazzOfT;
@@ -218,10 +254,39 @@ public class VocaDB {
         try {
 
             T item = targetClass.newInstance();
-        String[] cols = dbHelper.get_Item_Cols(item); //new String[map.keySet().size()];
+        String[] cols = dbHelper.get_Item_Cols(targetClass); //new String[map.keySet().size()];
 
         String orderBy = KEY_ROWID + " desc";
         Cursor c = ourDB.query(item.getClass().getSimpleName(), cols, null, null, null, null, orderBy, null);
+
+
+        JSONArray jsonArray=JsonUtil.convertCursorToJson(c);
+        list=JsonUtil.convertListFromJSONArray(targetClass,jsonArray);
+
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+
+    public <T> ArrayList<T> get_ItemListToHashToList(Class<T> targetClass) {
+
+        ArrayList<T> list = new ArrayList<>();
+//        Class<T> clazzOfT;
+//        Map<String, String> map = Utility.ObjectToMap(targetClass);
+        try {
+
+            T item = targetClass.newInstance();
+            String[] cols = dbHelper.get_Item_Cols(targetClass); //new String[map.keySet().size()];
+
+            String orderBy = KEY_ROWID + " desc";
+            Cursor c = ourDB.query(item.getClass().getSimpleName(), cols, null, null, null, null, orderBy, null);
 
 
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
@@ -238,7 +303,6 @@ public class VocaDB {
 
         return list;
     }
-
 
 
 
@@ -271,13 +335,13 @@ public class VocaDB {
     public JSONArray get_WordSetList_Json() {
         String selectQuery = "SELECT  * FROM WordSet";
         Cursor cursor = ourDB.rawQuery(selectQuery, null);
-        return Utility.convertCursorToJson(cursor);
+        return JsonUtil.convertCursorToJson(cursor);
     }
 
     public JSONArray get_VocaList_Json() {
         String selectQuery = "SELECT  * FROM Voca";
         Cursor cursor = ourDB.rawQuery(selectQuery, null);
-        return Utility.convertCursorToJson(cursor);
+        return JsonUtil.convertCursorToJson(cursor);
     }
 
 

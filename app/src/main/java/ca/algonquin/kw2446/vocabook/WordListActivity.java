@@ -25,6 +25,7 @@ import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.fragment.WordListFrag;
 import ca.algonquin.kw2446.vocabook.fragment.WordListFrag;
 import ca.algonquin.kw2446.vocabook.model.Voca;
+import ca.algonquin.kw2446.vocabook.util.JsonUtil;
 import ca.algonquin.kw2446.vocabook.util.Utility;
 
 public class WordListActivity extends AppCompatActivity implements  WordListFrag.VocaItemClicked{
@@ -134,7 +135,7 @@ public class WordListActivity extends AppCompatActivity implements  WordListFrag
                 break;
             case R.id.export:
                 ArrayList<Voca> list=(ArrayList<Voca>) VocaRepository.loadWordList(getApplicationContext(),setId);
-                JsonArray jsonArray=Utility.convertArrayListToJson(list);
+                JsonArray jsonArray= JsonUtil.convertArrayListToJsonArray(list);
                 tvExport.setVisibility(View.VISIBLE);
                 tvExport.setText(jsonArray.toString());
                 break;
