@@ -67,6 +67,7 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
         list=VocaRepository.loadWordList(getApplicationContext(),setId);
 
         ActionBar actionBar=getSupportActionBar();
+        actionBar.show();
         actionBar.setIcon(R.drawable.logo);
         actionBar.setTitle("  Vocabulary");
         actionBar.setDisplayShowHomeEnabled(true);
