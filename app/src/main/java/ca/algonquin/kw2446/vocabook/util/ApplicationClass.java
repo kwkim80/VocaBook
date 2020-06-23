@@ -11,6 +11,7 @@ public class ApplicationClass extends Application {
 
     public static ArrayList<WordSet> list;
     public static ArrayList<Voca> vocas;
+    public static String password="0000";
     @Override
     public void onCreate() {
         super.onCreate();

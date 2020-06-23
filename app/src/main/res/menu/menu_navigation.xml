@@ -14,10 +14,9 @@
             />
         <item
             android:id="@+id/trash"
-            android:title="Trash"
             android:icon="@drawable/delete"
             android:iconTint="#ff0000"
-            />
+            android:title="Arrange" />
         <item
             android:id="@+id/logout"
             android:title="Logout"

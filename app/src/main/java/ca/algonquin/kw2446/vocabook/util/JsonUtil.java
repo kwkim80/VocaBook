@@ -39,10 +39,22 @@ public class JsonUtil {
                 {
                     try
                     {
+
                         if( cursor.getString(i) != null )
                         {
                             Log.d("TAG_NAME", cursor.getString(i) );
-                            rowObject.put(cursor.getColumnName(i) ,  cursor.getString(i) );
+                            switch (cursor.getType(i))  {
+                                case Cursor.FIELD_TYPE_FLOAT:
+                                    rowObject.put(cursor.getColumnName(i), cursor.getFloat(i));
+                                    break;
+                                case Cursor.FIELD_TYPE_INTEGER:
+                                    rowObject.put(cursor.getColumnName(i), cursor.getInt(i));
+                                    break;
+                                case Cursor.FIELD_TYPE_STRING:
+                                    rowObject.put(cursor.getColumnName(i), cursor.getString(i));
+                                    break;
+                            }
+
                         }
                         else rowObject.put( cursor.getColumnName(i) ,  "" );
                     }
@@ -74,7 +86,7 @@ public class JsonUtil {
     {
         ObjectMapper mapper = new ObjectMapper();
 
-        ArrayList<Voca> list=new ArrayList<>();
+        ArrayList<T> list=new ArrayList<>();
         try {
 
 //            List<Voca> tempList=  Arrays.asList(mapper.readValue(json, Voca[].class));
@@ -91,7 +103,7 @@ public class JsonUtil {
             e.printStackTrace();
         }
 
-        return null;
+        return list;
     }
 
     public  static <T>  ArrayList<T> convertListFromJSONArray(Class<T> forClass, JSONArray array)

@@ -48,7 +48,7 @@ public class AddActivity extends AppCompatActivity {
     RadioButton selectedRb;
     EditText etTitle, etVocaCnt, etRawData;
     ImageView ivVocaAdd;
-
+    private VocaRepository vocaRepository;
     LinearLayout container;
     int vocaCnt;
     int inputType=1;  //1:list, 2:json, 3:text;
@@ -68,12 +68,12 @@ public class AddActivity extends AppCompatActivity {
 
         ActionBar actionBar=getSupportActionBar();
         actionBar.setIcon(R.drawable.logo);
-        actionBar.setTitle("  Vocabulary");
+        actionBar.setTitle(" Vocabulary");
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayUseLogoEnabled(true);
         //actionBar.setDisplayHomeAsUpEnabled(true);
         newList=new ArrayList<>();
-
+        vocaRepository=new VocaRepository(this);
         spLang=findViewById(R.id.spLang);
 
 //        int selectedId=rgLang.getCheckedRadioButtonId();
@@ -209,10 +209,10 @@ public class AddActivity extends AppCompatActivity {
             }
 
            //WordSet wordSet=new WordSet(title,category,Utility.getDateTime());
-
-            long idx= VocaRepository.insert_Item(getApplicationContext(),new WordSet(title,category,Utility.getDateTime()));
+            //vocaRepository.InsertWordSetAsyncTask(new WordSet(title,category,Utility.getDateTime()))
+            long idx=vocaRepository.insert_Item(new WordSet(title,category,Utility.getDateTime()));
             newList.forEach(e->e.setWordSetId((int)idx));
-            result=VocaRepository.insert_List(getApplicationContext(), newList);
+            result=vocaRepository.insert_List( newList);
 
         }
 

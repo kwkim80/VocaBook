@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import ca.algonquin.kw2446.vocabook.db.VocaDB;
+import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 
 public class EditActivity extends AppCompatActivity {
@@ -39,6 +40,7 @@ public class EditActivity extends AppCompatActivity {
     int setId;
     private final int EDIT_ACTION=1;
     private final int DEL_ACTION=2;
+    private VocaRepository vocaRepository;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +51,7 @@ public class EditActivity extends AppCompatActivity {
         actionBar.setTitle("  Vocabulary");
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayUseLogoEnabled(true);
-
+        vocaRepository=new VocaRepository(this);
         ivAdd=findViewById(R.id.ivAdd);
         etTitle=findViewById(R.id.etTitle);
         spLang=findViewById(R.id.spLang);
@@ -153,14 +155,9 @@ public class EditActivity extends AppCompatActivity {
         else{
             fillVocaListByList();
 
-            VocaDB db=new VocaDB(getApplicationContext());
-            db.open();
-
-
-            //result=db.update_Item()  //db.update_Voca(list.get(i));
-            db.close();
+            //VocaRepository.update_Item(getApplicationContext(),)
         }
-        return result;
+        return false;
     }
 
     private void fillVocaListByList(){
@@ -193,25 +190,25 @@ public class EditActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog,int id) {
                         boolean result;
                         Voca voca=(Voca) v.getTag();
-                        VocaDB db=new VocaDB(getApplicationContext());
-                        db.open();
+                       // VocaDB db=new VocaDB(getApplicationContext());
+                       // db.open();
                         switch (actionType){
                             case EDIT_ACTION:
                                 voca.setWord(((EditText)v.findViewById(R.id.etWord)).getText().toString().trim());
                                 voca.setMean(((EditText)v.findViewById(R.id.etMean)).getText().toString().trim());
-                                result=db.update_Item(voca);
+                                result=vocaRepository.update_Item(voca);//db.update_Item(voca);
                                 Toast.makeText(EditActivity.this,String.format("%s to update the item!", result?"Succeed":"Failed"), Toast.LENGTH_SHORT).show();
                                 break;
                             case DEL_ACTION:
 
-                                result=db.delete_Item(voca);
+                                result=vocaRepository.delete_Item(voca);   //db.delete_Item(voca);
                                 list.remove(voca);
                                 edit_container.removeView(v);
                                 Toast.makeText(EditActivity.this,String.format("%s to delete the item!", result?"Succeed":"Failed"), Toast.LENGTH_SHORT).show();
                                 break;
 
                         }
-                        db.close();
+                       // db.close();
                         changedItem_cnt++;
                     }
                 })

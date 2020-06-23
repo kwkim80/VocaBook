@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -58,12 +59,6 @@ public class Utility {
     }
 
 
-
-
-
-
-
-
     public static <T> HashMap<String, Object> ObjectToMap(T v){
         ObjectMapper oMapper = new ObjectMapper();
        oMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -73,6 +68,7 @@ public class Utility {
         HashMap map = oMapper.convertValue(v, HashMap.class);
         //System.out.println(map);
         return map;
+
     }
 
 
@@ -106,7 +102,7 @@ public class Utility {
 
 
 
-    public static void ShowAlertDialog(Activity from){
+    public static void ShowAlertDialog(Activity from, DialogInterface.OnClickListener clickListener, DialogInterface.OnClickListener cancelListener){
         View promptsView = LayoutInflater.from(from).inflate(R.layout.prompt, null);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
@@ -119,19 +115,21 @@ public class Utility {
                 .findViewById(R.id.editTextDialogUserInput);
         // set dialog message
         alertDialogBuilder.setCancelable(false);
-        alertDialogBuilder.setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                    }
-
-                });
-        alertDialogBuilder.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
+        alertDialogBuilder.setPositiveButton("OK", clickListener);
+        alertDialogBuilder.setNegativeButton("Cancel", cancelListener);
+//        alertDialogBuilder.setPositiveButton("OK",
+//                new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int id) {
+//
+//                    }
+//
+//                });
+//        alertDialogBuilder.setNegativeButton("Cancel",
+//                new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int id) {
+//                        dialog.cancel();
+//                    }
+//                });
 
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
@@ -152,7 +150,35 @@ public class Utility {
             return false;
         }
     }
+    public static HashMap<String, Object> getCursorToColumnList(Cursor cursor) {
 
+        int columnCount = cursor.getColumnCount();
+        HashMap row = new HashMap(columnCount);
+        for(int i=0; i<columnCount;i++){
+            switch (cursor.getType(i))  {
+                case Cursor.FIELD_TYPE_FLOAT:
+                    row.put(cursor.getColumnName(i), cursor.getFloat(i));
+                    break;
+                case Cursor.FIELD_TYPE_INTEGER:
+                    row.put(cursor.getColumnName(i), cursor.getInt(i));
+                    break;
+                case Cursor.FIELD_TYPE_STRING:
+                    row.put(cursor.getColumnName(i), cursor.getString(i));
+                    break;
+            }
+        }
+
+        return row;
+    }
+
+    public static <T> String[] get_Item_Cols(Class<T> obj){
+        String[] cols= new String[obj.getDeclaredFields().length];
+        int i=0;
+        for (Field field:obj.getDeclaredFields()) {
+            cols[i++]=field.getName();
+        } ;
+        return  cols;
+    }
 
 }
 

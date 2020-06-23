@@ -51,12 +51,23 @@ public class VocaDB {
     private Context ourContext;
     private SQLiteDatabase ourDB;
 
+
+
     String[] wordset_cols;
     String[] voca_cols;  // = new String[]{KEY_ROWID, KEY_SETID, KEY_WORD, KEY_MEAN, KEY_CHANGED_WORD, KEY_HARD};
 
     public VocaDB(Context context) {
         this.ourContext = context;
     }
+    private static VocaDB instance;
+
+    static VocaDB getInstance(final Context context){
+        if(instance == null){
+         return new VocaDB(context);
+        }
+        return instance;
+    }
+
 
     public class DBHelper extends SQLiteOpenHelper {
 
@@ -111,26 +122,7 @@ public class VocaDB {
             return cv;
         }
 
-        public HashMap<String, Object> getCursorToColumnList(Cursor cursor) {
 
-            int columnCount = cursor.getColumnCount();
-            HashMap row = new HashMap(columnCount);
-            for(int i=0; i<columnCount;i++){
-                switch (cursor.getType(i))  {
-                    case Cursor.FIELD_TYPE_FLOAT:
-                        row.put(cursor.getColumnName(i), cursor.getFloat(i));
-                        break;
-                    case Cursor.FIELD_TYPE_INTEGER:
-                        row.put(cursor.getColumnName(i), cursor.getInt(i));
-                        break;
-                    case Cursor.FIELD_TYPE_STRING:
-                        row.put(cursor.getColumnName(i), cursor.getString(i));
-                        break;
-                }
-              }
-
-            return row;
-        }
 
         public <T> String[] get_Item_ColsByHash(T obj){
            HashMap<String, Object> map = Utility.ObjectToMap(obj);
@@ -149,6 +141,7 @@ public class VocaDB {
         }
 
     }
+
 
     public VocaDB open() throws SQLException {
         dbHelper = new DBHelper(ourContext, DB_NAME, DB_VERSION);
@@ -195,42 +188,21 @@ public class VocaDB {
     }
 
 
-    public <T> T get_Item(Class<T> targetClass, int id){
-        //Class<T> clazzOfT;
-        T newItem=null;
-        try {
-            T temp = targetClass.newInstance();
-            String[] cols =dbHelper.get_Item_Cols(targetClass); //new String[map.keySet().size()];
-            String whereClause = KEY_ROWID + " = ? ";
-            String[] whereArgs = new String[]{String.valueOf(id)};
-            String orderBy = KEY_ROWID + " desc";
-            Cursor c = ourDB.query(targetClass.getClass().getSimpleName(), cols, whereClause, whereArgs, null, null, orderBy, null);
-
-
-            HashMap<String, Object> itemCols = dbHelper.getCursorToColumnList(c);
-            newItem = (T) Utility.setData(temp, itemCols);
-
-            c.close();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
+    public <T> void delete_List(T[] list) {
+        for (T item:list) {
+            this.delete_Item(item);
         }
 
-
-        return newItem;
     }
 
+    public <T> Cursor getItem(Class<T> targetClass, int idx) {
 
-    public <T> Cursor get_List(Class<T> targetClass) {
-
-       // ArrayList<T> list = new ArrayList<>();
-//        Class<T> clazzOfT;
-//        Map<String, String> map = Utility.ObjectToMap(targetClass);
         Cursor c=null;
         try {
             T item = targetClass.newInstance();
             //String[] cols = dbHelper.get_Item_Cols(item); //new String[map.keySet().size()];
+            String whereClause = KEY_ROWID + " = ? ";
+            String[] whereArgs = new String[]{String.valueOf(idx)};
             String[] cols= dbHelper.get_Item_Cols(targetClass);
 
             //String[] cols = dbHelper.get_Item_Cols(item); //new String[map.keySet().size()];
@@ -246,63 +218,34 @@ public class VocaDB {
         return c;
     }
 
-    public <T> ArrayList<T> get_ItemListToJsonToList(Class<T> targetClass) {
 
-        ArrayList<T> list = new ArrayList<>();
-//        Class<T> clazzOfT;
-//        Map<String, String> map = Utility.ObjectToMap(targetClass);
-        try {
-
-            T item = targetClass.newInstance();
-        String[] cols = dbHelper.get_Item_Cols(targetClass); //new String[map.keySet().size()];
-
-        String orderBy = KEY_ROWID + " desc";
-        Cursor c = ourDB.query(item.getClass().getSimpleName(), cols, null, null, null, null, orderBy, null);
+    public <T> Cursor get_List(Class<T> targetClass) {
 
 
-        JSONArray jsonArray=JsonUtil.convertCursorToJson(c);
-        list=JsonUtil.convertListFromJSONArray(targetClass,jsonArray);
+        Cursor c=null;
 
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }catch (JSONException e) {
-            e.printStackTrace();
-        }
+            String[] cols= dbHelper.get_Item_Cols(targetClass);
 
-        return list;
-    }
-
-
-    public <T> ArrayList<T> get_ItemListToHashToList(Class<T> targetClass) {
-
-        ArrayList<T> list = new ArrayList<>();
-//        Class<T> clazzOfT;
-//        Map<String, String> map = Utility.ObjectToMap(targetClass);
-        try {
-
-            T item = targetClass.newInstance();
-            String[] cols = dbHelper.get_Item_Cols(targetClass); //new String[map.keySet().size()];
-
+            //String[] cols = dbHelper.get_Item_Cols(item); //new String[map.keySet().size()];
             String orderBy = KEY_ROWID + " desc";
-            Cursor c = ourDB.query(item.getClass().getSimpleName(), cols, null, null, null, null, orderBy, null);
+            c = ourDB.query(targetClass.getSimpleName(), cols, null, null, null, null, orderBy, null);
 
-
-            for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
-                T newItem = targetClass.newInstance();
-                HashMap<String, Object> itemCols = dbHelper.getCursorToColumnList(c);
-                T temp = (T) Utility.setData(newItem, itemCols);
-                list.add(temp);
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-
-        return list;
+        return c;
     }
+
+    public <T> Cursor getListByForeignKey(Class<T> obj, String foreignKeyName, Object foreingKeyValue) {
+        ArrayList<Voca> list = new ArrayList<>();
+
+        String whereClause = foreignKeyName + " = ? ";
+        String[] whereArgs = new String[]{String.valueOf(foreingKeyValue)};
+        String orderBy = KEY_ROWID + " desc";
+        String[] cols= dbHelper.get_Item_Cols(obj);
+
+        Cursor c = ourDB.query(obj.getSimpleName(), cols, whereClause, whereArgs, null, null, null, null);
+
+        return c;
+    }
+
 
 
 

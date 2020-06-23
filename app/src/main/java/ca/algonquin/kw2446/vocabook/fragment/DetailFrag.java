@@ -39,6 +39,7 @@ import ca.algonquin.kw2446.vocabook.WordListActivity;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.adapter.VocaAdapter;
+import ca.algonquin.kw2446.vocabook.util.ApplicationClass;
 
 
 /**
@@ -58,7 +59,7 @@ public class DetailFrag extends Fragment {
     VocaAdapter vocaAdapter;
     VocaItemClicked activity;
     int setId;
-
+    private VocaRepository vocaRepository;
 
     private final int EDIT_ACTION=1;
     private final int DELETE_ACTION=2;
@@ -88,7 +89,7 @@ public class DetailFrag extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         //tvBig=getActivity().findViewById(R.id.tvBigWord);
-
+        vocaRepository=new VocaRepository(getContext());
         smlvWords=v.findViewById(R.id.smlvWords);
 
         //listView = (SwipeMenuListView) findViewById(R.id.listView);
@@ -117,13 +118,7 @@ public class DetailFrag extends Fragment {
                         0xc5, 0xEd)));
                 // set item width
                 ediItem.setWidth(170);
-                // set item title
-                //ediItem.setTitle("Open");
-                // ediItem.setTitleSize(18);
-                // ediItem.setTitleColor(Color.WHITE);
                 ediItem.setIcon(R.drawable.edit);
-
-
                 // add to menu
                 menu.addMenuItem(ediItem);
 
@@ -201,7 +196,7 @@ public class DetailFrag extends Fragment {
                                 voca.setWord(etWord.getText().toString().trim());
                                 voca.setMean(etMean.getText().toString().trim());
 
-                                boolean result=idx!=-1?VocaRepository.update_Item(getContext(),voca):VocaRepository.insert_Item(getContext(),voca)>0;
+                                boolean result=idx!=-1?vocaRepository.update_Item(voca):vocaRepository.insert_Item(voca)>0;
 
                                 Toast.makeText(getContext(),String.format("%s to %s the item!",result ?"Succeed":"Failed", idx!=-1?"update":"add"), Toast.LENGTH_SHORT).show();
                                 if(result && idx==-1)activity.onGetList().add(voca);
@@ -244,14 +239,14 @@ public class DetailFrag extends Fragment {
                                 // edit text
 
                                 boolean result;
-                                if(userInput.getText().toString().trim().equalsIgnoreCase("0000")){
+                                if(userInput.getText().toString().trim().equalsIgnoreCase(ApplicationClass.password)){
                                     switch (actionType){
                                         case EDIT_ACTION:
                                       editShowDialog(idx);
                                             break;
                                         case DELETE_ACTION:
                                             Voca voca=activity.onGetList().get(idx);
-                                            result= VocaRepository.delete_Item(getContext(),voca);
+                                            result= vocaRepository.delete_Item(voca);
                                             if(result){
                                                 activity.onGetList().remove(idx);
                                                 notifyChanged();

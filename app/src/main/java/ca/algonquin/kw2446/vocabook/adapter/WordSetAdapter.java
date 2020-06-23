@@ -21,8 +21,8 @@ public class WordSetAdapter extends RecyclerView.Adapter<WordSetAdapter.ViewHold
     WordSetItemClicked mainAct;
 
     public interface WordSetItemClicked{
-        void onWordSetItemClicked(String category, int i);
-        void onWordSetItemLongClicked(int i);
+        void onWordSetItemClicked(WordSet wordSet);
+        void onWordSetItemLongClicked(WordSet wordSet);
     }
     public WordSetAdapter(Context context, ArrayList<WordSet> list) {
         this.list = list;
@@ -43,16 +43,17 @@ public class WordSetAdapter extends RecyclerView.Adapter<WordSetAdapter.ViewHold
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    WordSet wordSet=(WordSet)v.getTag();
-                    mainAct.onWordSetItemClicked(wordSet.getCategory(),wordSet.getId());
+                   WordSet wordSet=(WordSet)v.getTag();  //by using Tag
+                    mainAct.onWordSetItemClicked(wordSet);
                 }
             });
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    WordSet wordSet=(WordSet) v.getTag();
-                    mainAct.onWordSetItemLongClicked(wordSet.getId());
+
+                    WordSet wordSet=list.get(getAdapterPosition()); //by using getAdapterPosition()
+                    mainAct.onWordSetItemLongClicked(wordSet);
                     return false;
                 }
             });
@@ -92,4 +93,6 @@ public class WordSetAdapter extends RecyclerView.Adapter<WordSetAdapter.ViewHold
     public int getItemCount() {
         return list.size();
     }
+
+
 }

@@ -48,7 +48,7 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
     FragmentManager fragmentManager;
     DetailFrag detailFrag;
     String category;
-
+    private VocaRepository vocaRepository;
 
     private final int WORDLIST_ACTIVITY=3;
     private final int EDITACTIVITY=5;
@@ -63,16 +63,16 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
         setId=intent.getIntExtra("setId",1);
         category=intent.getStringExtra("category");
 //        setId=getIntent().getIntExtra("setId",1);
-
-        list=VocaRepository.loadWordList(getApplicationContext(),setId);
+        vocaRepository=new VocaRepository(this);
+        list=vocaRepository.loadWordList(setId);
 
         ActionBar actionBar=getSupportActionBar();
         actionBar.show();
         actionBar.setIcon(R.drawable.logo);
-        actionBar.setTitle("  Vocabulary");
+        actionBar.setTitle(" Vocabulary");
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayUseLogoEnabled(true);
-
+        //actionBar.setDisplayHomeAsUpEnabled(true);
 
         ivLeft=findViewById(R.id.ivLeft);
         ivRight=findViewById(R.id.ivRight);
@@ -155,9 +155,9 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
 //                startActivityForResult(intent,EDITACTIVITY);
                 break;
             case R.id.export:
-                ArrayList<Voca> list=(ArrayList<Voca>) VocaRepository.loadWordList(getApplicationContext(),setId);
-               // JsonArray jsonArray= JsonUtil.convertArrayListToJsonArray(list);
+                ArrayList<Voca> list=(ArrayList<Voca>) vocaRepository.loadWordList(setId);
                 JsonArray jsonArray= JsonUtil.convertArrayListToJsonArray(list);
+
                 tvExport.setVisibility(View.VISIBLE);
                 tvExport.setText(jsonArray.toString());
                 break;
@@ -188,7 +188,7 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
             setId=data.getIntExtra("setId",setId);
 
             list.clear();
-            list.addAll(VocaRepository.loadWordList(DetailActivity.this,setId));
+            list.addAll(vocaRepository.loadWordList(setId));
 //            list.addAll((ArrayList<Voca>) data.getSerializableExtra("list"));
 //
             detailFrag.notifyChanged();
@@ -199,6 +199,8 @@ public class DetailActivity extends AppCompatActivity implements DetailFrag.Voca
 
     @Override
     public ArrayList<Voca> onGetList() { return list; }
+
+
 
     public void onPause(){
         if(tts !=null){tts.stop();tts.shutdown(); }
