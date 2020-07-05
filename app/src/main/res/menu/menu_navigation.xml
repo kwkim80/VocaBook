@@ -13,7 +13,7 @@
             android:icon="@drawable/setting"
             />
         <item
-            android:id="@+id/trash"
+            android:id="@+id/arrange"
             android:icon="@drawable/delete"
             android:iconTint="#ff0000"
             android:title="Arrange" />

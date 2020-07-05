@@ -37,7 +37,7 @@ public class VocaAdapter extends ArrayAdapter<Voca> {
     public View getView(int i, @Nullable View convertView, @NonNull ViewGroup parent) {
 
 
-        final Voca voca=list.get(i);
+         Voca voca=list.get(i);
         // Check if an existing view is being reused, otherwise inflate the view
         ViewHolder viewHolder; // view lookup cache stored in tag
         if (convertView == null) {
@@ -49,8 +49,6 @@ public class VocaAdapter extends ArrayAdapter<Voca> {
             viewHolder.tvWord = convertView.findViewById(R.id.tvWord);
 
             // Cache the viewHolder object inside the fresh view
-
-
             convertView.setTag(viewHolder);
         } else {
             // View is being recycled, retrieve the viewHolder object from tag
@@ -65,33 +63,11 @@ public class VocaAdapter extends ArrayAdapter<Voca> {
         // Return the completed view to render on screen
         return convertView;
 
-//        View v=LayoutInflater.from(parent.getContext()).inflate(R.layout.voca_items,parent ,false);
-//
-//        TextView tvWord, tvMean;
-//        ImageView ivCheck, ivHard;
-//
-//        tvWord=v.findViewById(R.id.tvWord);
-//        tvMean=v.findViewById(R.id.tvMean);
-//        ivCheck=v.findViewById(R.id.ivCheck);
-//        ivHard=v.findViewById(R.id.ivHard);
-//
-//
-//        tvWord.setText(voca.getWord());
-//        tvMean.setText(voca.getMean());
-//        ivCheck.setImageResource(R.drawable.checkbox);
-//        ivHard.setImageResource((voca.isHard()?R.drawable.star_fill:R.drawable.star));
-//
-//
-//        return v;
+
 
     }
 
 
-//    public void refreshData(ArrayList<Voca> newList)
-//    {
-//        list.clear();
-//        list.addAll(newList);
-//        notifyDataSetChanged();
-//    }
+
 
 }

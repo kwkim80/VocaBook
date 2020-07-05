@@ -6,6 +6,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,17 +15,20 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import ca.algonquin.kw2446.vocabook.adapter.WordSetAdapter;
 import ca.algonquin.kw2446.vocabook.db.VocaDB;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.model.Voca;
@@ -205,9 +209,8 @@ public class ExamActivity extends AppCompatActivity {
                                             ExamActivity.this.finish();
                                             break;
                                     }
-
-
-                                }
+                                }else
+                                    Toast.makeText(ExamActivity.this, "The password is not matched", Toast.LENGTH_SHORT).show();
 
                             }
                         })
@@ -248,7 +251,7 @@ public class ExamActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        if (savedInstanceState != null && savedInstanceState.getSerializable("answerList") != null) {
+        if ( savedInstanceState.getSerializable("answerList") != null) {
             quizlist = ((ArrayList<Voca>) savedInstanceState.getSerializable("answerList"));
 
             for (Voca voca:quizlist){

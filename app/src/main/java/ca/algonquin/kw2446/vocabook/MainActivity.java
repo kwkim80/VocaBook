@@ -35,14 +35,13 @@ import org.json.JSONArray;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import ca.algonquin.kw2446.vocabook.adapter.WordSetAdapter;
-import ca.algonquin.kw2446.vocabook.db.VocaDB;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.fragment.ListFrag;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.model.WordSet;
+import ca.algonquin.kw2446.vocabook.util.PreferenceManager;
 
 
 public class MainActivity extends AppCompatActivity implements WordSetAdapter.WordSetItemClicked {
@@ -67,10 +66,10 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
        // actionBar.setIcon(R.drawable.logo);
         actionBar.setTitle("Voca Book");
 
-       //   actionBar.setDisplayShowHomeEnabled(true);
-      //  actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        // actionBar.setDisplayShowHomeEnabled(true);
+        // actionBar.setDisplayUseLogoEnabled(true);
 
+        actionBar.setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_main);
         vocaRepository=new VocaRepository(this);
         //toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -82,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
         fragmentManager=getSupportFragmentManager();
         listFrag= (ListFrag) fragmentManager.findFragmentById(R.id.listFrag);
         fab=findViewById(R.id.fab);
-
+        String pwd= PreferenceManager.getString(this,"pwd");
+        //Toast.makeText(this, "pwd:"+pwd, Toast.LENGTH_SHORT).show();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
             public boolean onNavigationItemSelected(MenuItem menuItem) {
 
                 int id = menuItem.getItemId();
-
+                Intent intent;
                 switch (id){
                     case R.id.home:
                         //Toast.makeText(getApplicationContext(),"Home",Toast.LENGTH_SHORT).show();
@@ -108,11 +108,13 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
                         drawerLayout.closeDrawers();
                         break;
                     case R.id.settings:
-                        Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+                        intent=new Intent(MainActivity.this, SettingActivity.class);
+                        startActivity(intent);
                         break;
-                    case R.id.trash:
+                    case R.id.arrange:
                         //Toast.makeText(getApplicationContext(),"Trash",Toast.LENGTH_SHORT).show();
-                        Intent intent=new Intent(MainActivity.this, WordListActivity.class);
+                        intent=new Intent(MainActivity.this, WordListActivity.class);
                         startActivity(intent);
                         drawerLayout.closeDrawers();
                         break;
@@ -235,9 +237,7 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
                 listFrag.loadWordSets();
                 break;
             case android.R.id.home:
-              //  Toast.makeText(MainActivity.this,"Logo", Toast.LENGTH_SHORT).show();
-               // drawerLayout.closeDrawers();
-               // drawerLayout.openDrawer();
+
                 if (!drawerLayout.isDrawerOpen(Gravity.LEFT)) {
                     drawerLayout.openDrawer(Gravity.LEFT) ;
                 }else{

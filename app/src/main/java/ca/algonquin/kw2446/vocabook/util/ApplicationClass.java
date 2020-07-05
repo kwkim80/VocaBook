@@ -11,7 +11,7 @@ public class ApplicationClass extends Application {
 
     public static ArrayList<WordSet> list;
     public static ArrayList<Voca> vocas;
-    public static String password="0000";
+    public static String password;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -91,6 +91,18 @@ public class ApplicationClass extends Application {
 //        list.add(new WordSet("sample2","FR","", sample2));
 //        list.add(new WordSet("sample3","KR","", sample3));
 //        list.add(new WordSet("sample4","KR","2020.06.07", sample4));
+        setInitialPwd();
+
+    }
+
+    private void setInitialPwd(){
+        password = PreferenceManager.getString(getApplicationContext(), "pwd");
+
+        if (password.equals("")) {
+            password="0000";
+            PreferenceManager.setString(getApplicationContext(), "pwd", "0000");
+
+        }
 
     }
 }
