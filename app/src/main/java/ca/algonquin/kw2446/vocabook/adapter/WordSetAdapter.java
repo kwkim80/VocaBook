@@ -54,7 +54,7 @@ public class WordSetAdapter extends RecyclerView.Adapter<WordSetAdapter.ViewHold
 
                     WordSet wordSet=list.get(getAdapterPosition()); //by using getAdapterPosition()
                     mainAct.onWordSetItemLongClicked(wordSet);
-                    return false;
+                    return true;
                 }
             });
         }
