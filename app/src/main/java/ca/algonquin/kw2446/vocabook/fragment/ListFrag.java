@@ -36,6 +36,7 @@ import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.model.WordSet;
 import ca.algonquin.kw2446.vocabook.adapter.WordSetAdapter;
 import ca.algonquin.kw2446.vocabook.util.ApplicationClass;
+import ca.algonquin.kw2446.vocabook.util.PasswordFragment;
 import ca.algonquin.kw2446.vocabook.util.Utility;
 
 
@@ -123,39 +124,13 @@ public class ListFrag extends Fragment {
 
     public void checkPwd(final WordSet wordSet){
 
-        View promptsView = LayoutInflater.from(getContext()).inflate(R.layout.prompt, null);
+        PasswordFragment.newInstance(new PasswordFragment.OnOkClickListener() {
+            @Override
+            public void onOkClicked() {
+                deleteWordSet(wordSet);
+            }
+        }).show(getFragmentManager(), "dialog");;
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                getContext());
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final EditText userInput = (EditText) promptsView
-                .findViewById(R.id.editTextDialogUserInput);
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // get user input and set it to result
-                                // edit text
-                                if(userInput.getText().toString().trim().equalsIgnoreCase(ApplicationClass.password)){
-                                    deleteWordSet(wordSet);
-                                }
-
-                            }
-                        })
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        // show it
-        alertDialog.show();
     }
 
 

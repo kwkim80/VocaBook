@@ -33,6 +33,7 @@ import ca.algonquin.kw2446.vocabook.db.VocaDB;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.util.ApplicationClass;
+import ca.algonquin.kw2446.vocabook.util.PasswordFragment;
 
 public class ExamActivity extends AppCompatActivity {
 
@@ -122,16 +123,12 @@ public class ExamActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.mark:
-                //Toast.makeText(AddActivity.this,String.valueOf(spLang.getSelectedItem()), Toast.LENGTH_SHORT).show();
                 checkPwd(MARK_ACTION);
                 break;
             case R.id.list:
-                //Toast.makeText(AddActivity.this,String.valueOf(spLang.getSelectedItem()), Toast.LENGTH_SHORT).show();
                 checkPwd(LIST_ACTION);
                 break;
             case R.id.reset:
-                //Toast.makeText(AddActivity.this,String.valueOf(spLang.getSelectedItem()), Toast.LENGTH_SHORT).show();
-               // checkPwd(RESET_ACTION);
                 tvSTime.setText(String.format("Quize unique_id: %d",new Random().nextInt(10000)));
                 for (Voca voca:quizlist){
                     View qbox=quiz_container.findViewWithTag(voca.getId());
@@ -154,76 +151,119 @@ public class ExamActivity extends AppCompatActivity {
 
     public void checkPwd(final int actionType){
 
-        View promptsView = LayoutInflater.from(ExamActivity.this).inflate(R.layout.prompt, null);
+        PasswordFragment.newInstance(new PasswordFragment.OnOkClickListener() {
+            @Override
+            public void onOkClicked() {
+                switch (actionType){
+                    case MARK_ACTION:
+                        for (Voca voca:quizlist){
+                            View qbox=quiz_container.findViewWithTag(voca.getId());
+                            EditText etWord=qbox.findViewById(R.id.etWord);
+                            String answer=etWord.getText().toString().trim();
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                ExamActivity.this);
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final EditText userInput = (EditText) promptsView
-                .findViewById(R.id.editTextDialogUserInput);
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // get user input and set it to result
-                                // edit text
-
-                                if(userInput.getText().toString().trim().equalsIgnoreCase(ApplicationClass.password)){
-                                    switch (actionType){
-                                        case MARK_ACTION:
-                                            for (Voca voca:quizlist){
-                                                View qbox=quiz_container.findViewWithTag(voca.getId());
-                                                EditText etWord=qbox.findViewById(R.id.etWord);
-                                                String answer=etWord.getText().toString().trim();
-
-                                                if(voca.getWord().trim().equalsIgnoreCase(answer)){
-                                                    ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
-                                                    ivCheck.setImageResource(R.drawable.check);
-                                                }else {
-                                                    voca.setChangedWord(String.format("%s->[%s]",answer,voca.getWord().trim()));
-                                                    etWord.setText(voca.getChangedWord());
-                                                }
-                                            }
-                                            break;
-                                        case LIST_ACTION:
-                                            Intent intent=new Intent(ExamActivity.this, WordListActivity.class);
-                                            intent.putExtra("list", (Serializable)list);
-                                            intent.putExtra("setId",setId);
-                                            startActivityForResult(intent, WORDLIST_ACTIVITY);
-                                            break;
-                                        case RESET_ACTION:
-                                            tvSTime.setText(String.format("Quize unique_id: %d",new Random().nextInt(10000)));
-                                            for (Voca voca:quizlist){
-                                                View qbox=quiz_container.findViewWithTag(voca.getId());
-                                                EditText etWord=qbox.findViewById(R.id.etWord);
-                                                ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
-                                                etWord.setText("");
-                                                ivCheck.setImageResource(R.drawable.checkbox);
-                                            }
-                                            break;
-                                        case CLOSE_ACTION:
-                                            ExamActivity.this.finish();
-                                            break;
-                                    }
-                                }else
-                                    Toast.makeText(ExamActivity.this, "The password is not matched", Toast.LENGTH_SHORT).show();
-
+                            if(voca.getWord().trim().equalsIgnoreCase(answer)){
+                                ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
+                                ivCheck.setImageResource(R.drawable.check);
+                            }else {
+                                voca.setChangedWord(String.format("%s->[%s]",answer,voca.getWord().trim()));
+                                etWord.setText(voca.getChangedWord());
                             }
-                        })
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        // show it
-        alertDialog.show();
+                        }
+                        break;
+                    case LIST_ACTION:
+                        Intent intent=new Intent(ExamActivity.this, WordListActivity.class);
+                        intent.putExtra("list", (Serializable)list);
+                        intent.putExtra("setId",setId);
+                        startActivityForResult(intent, WORDLIST_ACTIVITY);
+                        break;
+                    case RESET_ACTION:
+                        tvSTime.setText(String.format("Quize unique_id: %d",new Random().nextInt(10000)));
+                        for (Voca voca:quizlist){
+                            View qbox=quiz_container.findViewWithTag(voca.getId());
+                            EditText etWord=qbox.findViewById(R.id.etWord);
+                            ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
+                            etWord.setText("");
+                            ivCheck.setImageResource(R.drawable.checkbox);
+                        }
+                        break;
+                    case CLOSE_ACTION:
+                        ExamActivity.this.finish();
+                        break;
+                }
+            }
+
+
+        }).show(getSupportFragmentManager(), "dialog");;
+//        View promptsView = LayoutInflater.from(ExamActivity.this).inflate(R.layout.prompt, null);
+//
+//        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+//                ExamActivity.this);
+//        // set prompts.xml to alertdialog builder
+//        alertDialogBuilder.setView(promptsView);
+//
+//        final EditText userInput = (EditText) promptsView
+//                .findViewById(R.id.editTextDialogUserInput);
+//        // set dialog message
+//        alertDialogBuilder
+//                .setCancelable(false)
+//                .setPositiveButton("OK",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                // get user input and set it to result
+//                                // edit text
+//
+//                                if(userInput.getText().toString().trim().equalsIgnoreCase(ApplicationClass.password)){
+//                                    switch (actionType){
+//                                        case MARK_ACTION:
+//                                            for (Voca voca:quizlist){
+//                                                View qbox=quiz_container.findViewWithTag(voca.getId());
+//                                                EditText etWord=qbox.findViewById(R.id.etWord);
+//                                                String answer=etWord.getText().toString().trim();
+//
+//                                                if(voca.getWord().trim().equalsIgnoreCase(answer)){
+//                                                    ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
+//                                                    ivCheck.setImageResource(R.drawable.check);
+//                                                }else {
+//                                                    voca.setChangedWord(String.format("%s->[%s]",answer,voca.getWord().trim()));
+//                                                    etWord.setText(voca.getChangedWord());
+//                                                }
+//                                            }
+//                                            break;
+//                                        case LIST_ACTION:
+//                                            Intent intent=new Intent(ExamActivity.this, WordListActivity.class);
+//                                            intent.putExtra("list", (Serializable)list);
+//                                            intent.putExtra("setId",setId);
+//                                            startActivityForResult(intent, WORDLIST_ACTIVITY);
+//                                            break;
+//                                        case RESET_ACTION:
+//                                            tvSTime.setText(String.format("Quize unique_id: %d",new Random().nextInt(10000)));
+//                                            for (Voca voca:quizlist){
+//                                                View qbox=quiz_container.findViewWithTag(voca.getId());
+//                                                EditText etWord=qbox.findViewById(R.id.etWord);
+//                                                ImageView ivCheck=qbox.findViewById(R.id.ivCheck);
+//                                                etWord.setText("");
+//                                                ivCheck.setImageResource(R.drawable.checkbox);
+//                                            }
+//                                            break;
+//                                        case CLOSE_ACTION:
+//                                            ExamActivity.this.finish();
+//                                            break;
+//                                    }
+//                                }else
+//                                    Toast.makeText(ExamActivity.this, "The password is not matched", Toast.LENGTH_SHORT).show();
+//
+//                            }
+//                        })
+//                .setNegativeButton("Cancel",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog,int id) {
+//                                dialog.cancel();
+//                            }
+//                        });
+//        // create alert dialog
+//        AlertDialog alertDialog = alertDialogBuilder.create();
+//        // show it
+//        alertDialog.show();
     }
 
     @Override

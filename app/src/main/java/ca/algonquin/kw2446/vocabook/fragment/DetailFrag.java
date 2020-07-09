@@ -39,7 +39,9 @@ import ca.algonquin.kw2446.vocabook.WordListActivity;
 import ca.algonquin.kw2446.vocabook.db.VocaRepository;
 import ca.algonquin.kw2446.vocabook.model.Voca;
 import ca.algonquin.kw2446.vocabook.adapter.VocaAdapter;
+import ca.algonquin.kw2446.vocabook.model.WordSet;
 import ca.algonquin.kw2446.vocabook.util.ApplicationClass;
+import ca.algonquin.kw2446.vocabook.util.PasswordFragment;
 
 
 /**
@@ -219,61 +221,31 @@ public class DetailFrag extends Fragment {
 
     public void checkPwd(final int actionType, final int idx){
 
-        View promptsView = LayoutInflater.from(getContext()).inflate(R.layout.prompt, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                getContext());
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final EditText userInput = (EditText) promptsView
-                .findViewById(R.id.editTextDialogUserInput);
-        // set dialog message
-
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // get user input and set it to result
-                                // edit text
-
-                                boolean result;
-                                if(userInput.getText().toString().trim().equalsIgnoreCase(ApplicationClass.password)){
-                                    switch (actionType){
-                                        case EDIT_ACTION:
-                                      editShowDialog(idx);
-                                            break;
-                                        case DELETE_ACTION:
-                                            Voca voca=activity.onGetList().get(idx);
-                                            result= vocaRepository.delete_Item(voca);
-                                            if(result){
-                                                activity.onGetList().remove(idx);
-                                                notifyChanged();
-                                            }
-                                            Toast.makeText(getContext(),String.format("%s to delete the Item",result?"Succeed":"Failed"),Toast.LENGTH_SHORT).show();
-                                            break;
-                                        case ADD_ACTION:
-                                            editShowDialog(-1);
-                                            break;
-
-                                    }
-
-
-                                }
-
+        PasswordFragment.newInstance(new PasswordFragment.OnOkClickListener() {
+            @Override
+            public void onOkClicked() {
+                boolean result;
+                    switch (actionType){
+                        case EDIT_ACTION:
+                            editShowDialog(idx);
+                            break;
+                        case DELETE_ACTION:
+                            Voca voca=activity.onGetList().get(idx);
+                            result= vocaRepository.delete_Item(voca);
+                            if(result){
+                                activity.onGetList().remove(idx);
+                                notifyChanged();
                             }
-                        })
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        // show it
-        alertDialog.show();
+                            Toast.makeText(getContext(),String.format("%s to delete the Item",result?"Succeed":"Failed"),Toast.LENGTH_SHORT).show();
+                            break;
+                        case ADD_ACTION:
+                            editShowDialog(-1);
+                            break;
+                    }
+            }
+
+        }).show(getFragmentManager(), "dialog");
+        
     }
 
 }
