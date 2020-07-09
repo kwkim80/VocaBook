@@ -245,7 +245,7 @@ public class DetailFrag extends Fragment {
             }
 
         }).show(getFragmentManager(), "dialog");
-        
+
     }
 
 }
