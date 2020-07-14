@@ -4,6 +4,7 @@ package ca.algonquin.kw2446.vocabook.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +53,7 @@ public class ListFrag extends Fragment {
     RecyclerView.Adapter adapter;
     private VocaRepository vocaRepository;
     View v;
+    SwipeRefreshLayout sRefresh;
 
     public ListFrag() {
         // Required empty public constructor
@@ -62,6 +65,15 @@ public class ListFrag extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v= inflater.inflate(R.layout.fragment_list, container, false);
+        sRefresh = (SwipeRefreshLayout) v.findViewById(R.id.sRefresh);
+        sRefresh.setColorSchemeColors(Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE);
+        sRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadWordSets();
+            }
+        });
+
         return v;
     }
 
@@ -79,6 +91,8 @@ public class ListFrag extends Fragment {
         adapter=new WordSetAdapter(this.getContext(), list);
         recyclerView.setAdapter(adapter);
 
+
+
     }
 
     public void notifyChanged(){
@@ -87,6 +101,7 @@ public class ListFrag extends Fragment {
 
 
     public void loadWordSets(){
+        sRefresh.setRefreshing(true);
         ArrayList<WordSet> data=new ArrayList<>();
         try {
 
@@ -103,6 +118,7 @@ public class ListFrag extends Fragment {
         list.clear();
         list.addAll(data);
         this.notifyChanged();
+        sRefresh.setRefreshing(false);
     }
 
     private void deleteWordSet(WordSet wordSet){

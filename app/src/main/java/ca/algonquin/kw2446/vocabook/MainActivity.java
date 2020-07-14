@@ -227,10 +227,8 @@ public class MainActivity extends AppCompatActivity implements WordSetAdapter.Wo
                 // Utility.ShowAlertDialog(MainActivity.this, 5, inc);
                 break;
             case R.id.refresh:
-                //Toast.makeText(MainActivity.this,"Refresh", Toast.LENGTH_SHORT).show();
-                //listFrag.loadWordSets();
-//                Voca voca=new Voca();
-//                ArrayList vocas= vocaRepository.getItemList(Voca.class);
+                listFrag.loadWordSets();
+                Toast.makeText(MainActivity.this,"Refreshed", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.sample:
                 vocaRepository.addSample_WordSet();
